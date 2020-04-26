@@ -11,11 +11,11 @@ import org.apache.lucene.util.AttributeFactory;
 public class IntermaTokenizer extends Tokenizer {
 
     public IntermaTokenizer() {
-        this( DEFAULT_BUFFER_SIZE, DEFAULT_DELIMITER, DEFAULT_DELIMITER, DEFAULT_SKIP);
+        this( DEFAULT_TOKEN_ATTRIBUTE_FACTORY, DEFAULT_BUFFER_SIZE, DEFAULT_DELIMITER, DEFAULT_DELIMITER, DEFAULT_SKIP);
     }
 
-    public IntermaTokenizer(int bufferSize, char delimiter, char replacement, int skip) {
-        this(DEFAULT_TOKEN_ATTRIBUTE_FACTORY, bufferSize, delimiter, replacement, skip);
+    public IntermaTokenizer(AttributeFactory factory) {
+        this( factory, DEFAULT_BUFFER_SIZE, DEFAULT_DELIMITER, DEFAULT_DELIMITER, DEFAULT_SKIP);
     }
 
     public IntermaTokenizer
