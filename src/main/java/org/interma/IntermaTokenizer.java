@@ -1,12 +1,23 @@
 package org.interma;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeFactory;
+
+class Term {
+    public String str;
+    public int offset;
+
+    public Term(String str, int off) {
+        this.str = str;
+        this.offset = off;
+    }
+}
 
 public class IntermaTokenizer extends Tokenizer {
 
@@ -32,7 +43,8 @@ public class IntermaTokenizer extends Tokenizer {
         this.delimiter = delimiter;
         this.replacement = replacement;
         this.skip = skip;
-        resultToken = new StringBuilder(bufferSize);
+
+        this.v = new Vector();
     }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -49,62 +61,103 @@ public class IntermaTokenizer extends Tokenizer {
     private int startPosition = 0;
     private int skipped = 0;
     private boolean endDelimiter = false;
-    private StringBuilder resultToken;
 
     private int charsRead = 0;
 
+    private Vector v;
 
     @Override
     public final boolean incrementToken() throws IOException {
         clearAttributes();
-        if(resultToken.length() == 0){
-            posAtt.setPositionIncrement(1);
-        }
-        else{
-            posAtt.setPositionIncrement(0);
+        // note: set this value to 1
+        posAtt.setPositionIncrement(1);
+
+        // iterator vector
+        if (v.size() > 0) {
+            Term term = (Term)(v.get(0));
+            termAtt.append(term.str);
+            termAtt.setLength(term.str.length());
+            offsetAtt.setOffset(correctOffset(term.offset), correctOffset(term.offset+term.str.length()));
+
+            v.remove(0);
+            return true;
         }
 
-        int length = 0;
+        StringBuilder tokensb = new StringBuilder();
+        String token = new String();
+
         boolean eof = false;
         while (true) {
             int c = input.read();
             if (c < 0) {
+                token = tokensb.toString().trim();
                 eof = true;
                 break;
             }
-            if (c == ';')
-                break;
-            length++;
-            termAtt.append((char)c);
+            if (c == ';') {
+                token = tokensb.toString().trim();
+                if (token.length() > 0) {
+                    break;
+                }
+                else {
+                    tokensb.setLength(0);
+                    continue;
+                }
+            }
+
+            tokensb.append((char)c);
         }
 
-        if (eof && length == 0)
+        if (eof && token.length() == 0)
             return false;
 
-        termAtt.setLength(length);
-        offsetAtt.setOffset(correctOffset(startPosition), correctOffset(startPosition+length));
-        startPosition += length;
-        resultToken.setLength(0);
-        resultToken.append(termAtt.buffer(), 0, length);
+        //generate all sub terms: key=, =value
+        generate_subterms(token, startPosition);
+
+
+        termAtt.append(token);
+        termAtt.setLength(token.length());
+
+        // note: length isn't the actual length (see final offset)
+        offsetAtt.setOffset(correctOffset(startPosition), correctOffset(startPosition+token.length()));
+        startPosition += token.length();
+
         return true;
+    }
+
+    private void generate_subterms(String token, int offset) {
+        int pos = token.indexOf("=");
+        if (pos < 0)
+            return; // not a valid fix message
+        String key_term = token.substring(0,pos+1);
+        String val_term = token.substring(pos);
+
+        if (key_term.length() > 0)
+            v.addElement(new Term(key_term, offset));
+        if (val_term.length() > 0)
+            v.addElement(new Term(val_term, offset+pos));
     }
 
     @Override
     public final void end() throws IOException {
+        //TODO correct finaloffset
+
         super.end();
         // set final offset
-        int finalOffset = correctOffset(charsRead);
+        //int finalOffset = correctOffset(charsRead);
+        int finalOffset = correctOffset(startPosition);
         offsetAtt.setOffset(finalOffset, finalOffset);
     }
 
     @Override
     public void reset() throws IOException {
         super.reset();
-        resultToken.setLength(0);
         charsRead = 0;
         endDelimiter = false;
         skipped = 0;
         startPosition = 0;
+
+        v.clear();
     }
 }
 

@@ -12,7 +12,7 @@ import org.interma.AnalyzerUtils;
 public class MyClass {
     public static void main(String[] args)
     {
-        String text = "126=abc; ;55=cde fg;100=nba";
+        String text = "126=abc; ;55=cde fg;100=nba ; 130=tyu;;167=mnn";
 
         try {
             //Analyzer ana = new MyWhitespaceAnalyzer();
