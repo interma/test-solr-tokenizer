@@ -1,9 +1,12 @@
 package org.interma;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Vector;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.standard.StandardTokenizerImpl;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -45,6 +48,7 @@ public class IntermaTokenizer extends Tokenizer {
         this.skip = skip;
 
         this.v = new Vector();
+        this.scanner = new StandardTokenizerImpl(input);
     }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -65,6 +69,7 @@ public class IntermaTokenizer extends Tokenizer {
     private int charsRead = 0;
 
     private Vector v;
+    private StandardTokenizerImpl scanner;
 
     @Override
     public final boolean incrementToken() throws IOException {
@@ -125,7 +130,7 @@ public class IntermaTokenizer extends Tokenizer {
         return true;
     }
 
-    private void generate_subterms(String token, int offset) {
+    private void generate_subterms(String token, int offset) throws IOException {
         int pos = token.indexOf("=");
         if (pos < 0)
             return; // not a valid fix message
@@ -136,6 +141,22 @@ public class IntermaTokenizer extends Tokenizer {
             v.addElement(new Term(key_term, offset));
         if (val_term.length() > 0)
             v.addElement(new Term(val_term, offset+pos));
+
+        String value = token.substring(pos+1);
+        // generate all value subterms
+        Reader reader = new StringReader(value);
+        scanner.yyreset(reader);
+
+        while(true) {
+            int tokenType = scanner.getNextToken();
+
+            if (tokenType == StandardTokenizerImpl.YYEOF) {
+                reader.close();
+                return;
+            }
+
+            v.addElement(new Term(scanner.yytext(), offset+pos+1+scanner.yychar()));
+        }
     }
 
     @Override
@@ -158,6 +179,7 @@ public class IntermaTokenizer extends Tokenizer {
         startPosition = 0;
 
         v.clear();
+        scanner.yyreset(input);
     }
 }
 
