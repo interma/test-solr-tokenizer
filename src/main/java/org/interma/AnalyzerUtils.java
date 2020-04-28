@@ -19,6 +19,7 @@ public class AnalyzerUtils {
     public static void displayTokens(Analyzer analyzer,String text) throws IOException {
         TokenStream tokenStream = analyzer.tokenStream("text", text);
         displayTokens(tokenStream);
+        tokenStream.close();
     }
 
     public static void displayTokens(TokenStream tokenStream) throws IOException {

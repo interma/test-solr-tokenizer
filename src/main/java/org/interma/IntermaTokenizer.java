@@ -25,39 +25,38 @@ class Term {
 public class IntermaTokenizer extends Tokenizer {
 
     public IntermaTokenizer() {
-        this( DEFAULT_TOKEN_ATTRIBUTE_FACTORY, DEFAULT_BUFFER_SIZE, DEFAULT_DELIMITER, DEFAULT_DELIMITER, DEFAULT_SKIP);
+        this( DEFAULT_TOKEN_ATTRIBUTE_FACTORY, DEFAULT_DELIMITER);
     }
 
     public IntermaTokenizer(AttributeFactory factory) {
-        this( factory, DEFAULT_BUFFER_SIZE, DEFAULT_DELIMITER, DEFAULT_DELIMITER, DEFAULT_SKIP);
+        this( factory, DEFAULT_DELIMITER);
     }
 
-    public IntermaTokenizer
-            (AttributeFactory factory, int bufferSize, char delimiter, char replacement, int skip) {
+    public IntermaTokenizer(AttributeFactory factory, String delimiter) {
         super(factory);
-        if (bufferSize < 0) {
-            throw new IllegalArgumentException("bufferSize cannot be negative");
-        }
-        if (skip < 0) {
-            throw new IllegalArgumentException("skip cannot be negative");
-        }
-        termAtt.resizeBuffer(bufferSize);
+        termAtt.resizeBuffer(DEFAULT_BUFFER_SIZE);
 
-        this.delimiter = delimiter;
-        this.replacement = replacement;
-        this.skip = skip;
+        this.delimiter = new Vector<Integer>();
+        for (int i = 0; i < delimiter.length(); i++) {
+            char c = delimiter.charAt(i);
+            char cc = delimiter.charAt(i+1);
+            int d = c;
 
-        this.v = new Vector();
+            if (c == '0' && cc == 'x') {
+               d = Integer.decode(delimiter.substring(i, i+4));
+               i += 3;
+            }
+            this.delimiter.addElement(d);
+        }
+
+        this.v = new Vector<Term>();
         this.scanner = new StandardTokenizerImpl(input);
     }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024;
-    public static final char DEFAULT_DELIMITER = '/';
-    public static final int DEFAULT_SKIP = 0;
+    public static final String DEFAULT_DELIMITER = ";0x01";
 
-    private final char delimiter;
-    private final char replacement;
-    private final int skip;
+    private final Vector<Integer> delimiter;
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
@@ -68,7 +67,7 @@ public class IntermaTokenizer extends Tokenizer {
 
     private int charsRead = 0;
 
-    private Vector v;
+    private Vector<Term> v;
     private StandardTokenizerImpl scanner;
 
     @Override
@@ -89,7 +88,7 @@ public class IntermaTokenizer extends Tokenizer {
         }
 
         StringBuilder tokensb = new StringBuilder();
-        String token = new String();
+        String token;
 
         boolean eof = false;
         while (true) {
@@ -99,7 +98,8 @@ public class IntermaTokenizer extends Tokenizer {
                 eof = true;
                 break;
             }
-            if (c == ';') {
+            //if (c == ';') {
+            if (this.delimiter.indexOf(c) > 0) {
                 token = tokensb.toString().trim();
                 if (token.length() > 0) {
                     break;
@@ -180,6 +180,12 @@ public class IntermaTokenizer extends Tokenizer {
 
         v.clear();
         scanner.yyreset(input);
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        scanner.yyclose();
     }
 }
 

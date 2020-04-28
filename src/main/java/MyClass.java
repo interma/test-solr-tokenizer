@@ -12,8 +12,6 @@ import org.interma.AnalyzerUtils;
 public class MyClass {
     public static void main(String[] args)
     {
-        String text = "126=abc; ;55=cde fg;100=nba ; 130=tyu;;167=mnn";
-
         try {
             //Analyzer ana = new MyWhitespaceAnalyzer();
             Analyzer a = new Analyzer() {
@@ -24,14 +22,22 @@ public class MyClass {
                     return new TokenStreamComponents(tokenizer, tokenizer);
                 }
             };
+            String text = "126=abc; ;55=cde fg;100=nba ; 130=tyu;;167=mnn";
             AnalyzerUtils.displayTokens(a, text);
 
+            System.out.println();
+            char[] delimiter = new char[]{0x01};
+            String d = new String(delimiter);
+            text = "126=abc"+d+"45=nba";
+            AnalyzerUtils.displayTokens(a, text);
             a.close();
             System.out.println();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        //String hexstr = ";\\x01";
+        //System.out.println(hexstr);
         System.out.println("hello world");
     }
 }
