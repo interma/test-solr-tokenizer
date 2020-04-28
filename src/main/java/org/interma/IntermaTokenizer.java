@@ -49,7 +49,7 @@ public class IntermaTokenizer extends Tokenizer {
             this.delimiter.addElement(d);
         }
 
-        this.v = new Vector<Term>();
+        this.v = new Vector<>();
         this.scanner = new StandardTokenizerImpl(input);
     }
 
@@ -62,10 +62,6 @@ public class IntermaTokenizer extends Tokenizer {
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
     private final PositionIncrementAttribute posAtt = addAttribute(PositionIncrementAttribute.class);
     private int startPosition = 0;
-    private int skipped = 0;
-    private boolean endDelimiter = false;
-
-    private int charsRead = 0;
 
     private Vector<Term> v;
     private StandardTokenizerImpl scanner;
@@ -87,30 +83,30 @@ public class IntermaTokenizer extends Tokenizer {
             return true;
         }
 
-        StringBuilder tokensb = new StringBuilder();
+        StringBuilder token_sb = new StringBuilder();
         String token;
 
         boolean eof = false;
         while (true) {
             int c = input.read();
             if (c < 0) {
-                token = tokensb.toString().trim();
+                token = token_sb.toString().trim();
                 eof = true;
                 break;
             }
             //if (c == ';') {
-            if (this.delimiter.indexOf(c) > 0) {
-                token = tokensb.toString().trim();
+            if (this.delimiter.indexOf(c) >= 0) {
+                token = token_sb.toString().trim();
                 if (token.length() > 0) {
                     break;
                 }
                 else {
-                    tokensb.setLength(0);
+                    token_sb.setLength(0);
                     continue;
                 }
             }
 
-            tokensb.append((char)c);
+            token_sb.append((char)c);
         }
 
         if (eof && token.length() == 0)
@@ -173,9 +169,6 @@ public class IntermaTokenizer extends Tokenizer {
     @Override
     public void reset() throws IOException {
         super.reset();
-        charsRead = 0;
-        endDelimiter = false;
-        skipped = 0;
         startPosition = 0;
 
         v.clear();

@@ -22,7 +22,7 @@ public class AnalyzerUtils {
         tokenStream.close();
     }
 
-    public static void displayTokens(TokenStream tokenStream) throws IOException {
+    private static void displayTokens(TokenStream tokenStream) throws IOException {
         OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
         PositionIncrementAttribute positionIncrementAttribute = tokenStream.addAttribute(PositionIncrementAttribute.class);
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
