@@ -5,12 +5,12 @@ import java.util.Map;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
 
-public class IntermaTokenizerFactory extends TokenizerFactory {
+public class FixMessageTokenizerFactory extends TokenizerFactory {
     private final String delimiter;
 
-    public IntermaTokenizerFactory(Map<String, String> args) {
+    public FixMessageTokenizerFactory(Map<String, String> args) {
         super(args);
-        delimiter = get(args, "delimiter", IntermaTokenizer.DEFAULT_DELIMITER);
+        delimiter = get(args, "delimiter", FixMessageTokenizer.DEFAULT_DELIMITER);
 
         if (!args.isEmpty()) {
             throw new IllegalArgumentException("Unknown parameters: " + args);
@@ -18,8 +18,8 @@ public class IntermaTokenizerFactory extends TokenizerFactory {
     }
 
     @Override
-    public IntermaTokenizer create(AttributeFactory factory) {
-        IntermaTokenizer tokenizer = new IntermaTokenizer(factory, delimiter);
+    public FixMessageTokenizer create(AttributeFactory factory) {
+        FixMessageTokenizer tokenizer = new FixMessageTokenizer(factory, delimiter);
         return tokenizer;
     }
 }

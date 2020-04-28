@@ -1,12 +1,9 @@
-
-
-
 import java.io.IOException;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
 
-import org.interma.IntermaTokenizer;
+import org.interma.FixMessageTokenizer;
 import org.interma.AnalyzerUtils;
 
 public class MyClass {
@@ -21,7 +18,7 @@ public class MyClass {
                 @Override
                 protected TokenStreamComponents createComponents(String fieldName) {
                     //Tokenizer tokenizer = new PathHierarchyTokenizer();
-                    Tokenizer tokenizer = new IntermaTokenizer();
+                    Tokenizer tokenizer = new FixMessageTokenizer();
                     return new TokenStreamComponents(tokenizer, tokenizer);
                 }
             };

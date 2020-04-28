@@ -22,17 +22,17 @@ class Term {
     }
 }
 
-public class IntermaTokenizer extends Tokenizer {
+public class FixMessageTokenizer extends Tokenizer {
 
-    public IntermaTokenizer() {
+    public FixMessageTokenizer() {
         this( DEFAULT_TOKEN_ATTRIBUTE_FACTORY, DEFAULT_DELIMITER);
     }
 
-    public IntermaTokenizer(AttributeFactory factory) {
+    public FixMessageTokenizer(AttributeFactory factory) {
         this( factory, DEFAULT_DELIMITER);
     }
 
-    public IntermaTokenizer(AttributeFactory factory, String delimiter) {
+    public FixMessageTokenizer(AttributeFactory factory, String delimiter) {
         super(factory);
         termAtt.resizeBuffer(DEFAULT_BUFFER_SIZE);
 
