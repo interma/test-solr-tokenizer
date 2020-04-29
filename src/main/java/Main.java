@@ -6,7 +6,7 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.interma.FixMessageTokenizer;
 import org.interma.AnalyzerUtils;
 
-public class MyClass {
+public class Main {
     public static void main(String[] args)
     {
         try {
@@ -36,8 +36,6 @@ public class MyClass {
             e.printStackTrace();
         }
 
-        //String hexstr = ";\\x01";
-        //System.out.println(hexstr);
         System.out.println("hello world");
     }
 }

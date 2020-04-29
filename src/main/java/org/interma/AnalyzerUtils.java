@@ -18,6 +18,7 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 public class AnalyzerUtils {
     public static void displayTokens(Analyzer analyzer,String text) throws IOException {
         TokenStream tokenStream = analyzer.tokenStream("text", text);
+        System.out.println(text);
         displayTokens(tokenStream);
         tokenStream.close();
     }
