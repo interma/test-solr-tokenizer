@@ -31,7 +31,6 @@ public class Main {
             a.close();
             System.out.println();
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -137,7 +137,7 @@ public class FixMessageTokenizer extends Tokenizer {
         termAtt.setLength(token.length());
 
         // note: length isn't the actual length (because trim).
-        // and seems it no harm.
+        // it (offset isn't correct) seems no harm if we don't use phrase query.
         offsetAtt.setOffset(correctOffset(startPosition), correctOffset(startPosition+token.length()));
         startPosition += token.length();
 
